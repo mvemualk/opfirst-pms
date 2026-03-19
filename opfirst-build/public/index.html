@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpFirst PMS — MVP Beta</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#09111F;--surf:#0F1B2E;--card:#152032;--card2:#1B2840;
+  --b1:#1C2D45;--b2:#243858;--b3:#2E4A6A;
+  --tx:#DCE8F5;--mu:#7A9BBF;--dim:#3D5A7A;
+  --te:#0BBFA3;--te-d:#092E28;
+  --am:#F5A623;--am-d:#3D2800;
+  --re:#EF4545;--re-d:#3A1515;
+  --gr:#10BE81;--gr-d:#0C3020;
+  --pu:#9B72F5;--pu-d:#28185A;
+  --bl:#4DA6FF;--bl-d:#162845;
+  --font:"DM Sans",system-ui,sans-serif;--mono:"DM Mono",monospace;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{color:var(--tx);font-family:var(--font);font-size:13px;line-height:1.5}
+#app{display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sb{width:220px;min-width:220px;background:var(--surf);border-right:1px solid var(--b1);display:flex;flex-direction:column}
+.sb-logo{padding:15px 14px 12px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:10px}
+.logo-icon{width:30px;height:30px;background:var(--te);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#000;flex-shrink:0}
+.logo-name{font-size:14px;font-weight:700;letter-spacing:-0.3px}
+.logo-ver{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:0.8px}
+.sb-portals{padding:8px 8px 5px;border-bottom:1px solid var(--b1)}
+.sb-label{font-size:9px;text-transform:uppercase;letter-spacing:0.8px;color:var(--dim);padding:0 6px 6px}
+.pBtn{display:flex;align-items:center;gap:8px;width:100%;padding:6px 8px;border-radius:6px;border:none;background:transparent;color:var(--mu);cursor:pointer;font-size:12px;font-family:var(--font);text-align:left;transition:all 0.12s}
+.pBtn:hover{background:var(--card2);color:var(--tx)}
+.pBtn.on{background:var(--te-d);color:var(--te);font-weight:500}
+.pip{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+.sb-nav{padding:8px 8px 4px;flex:1;overflow-y:auto}
+.nBtn{display:flex;align-items:center;gap:8px;width:100%;padding:6px 8px;border-radius:6px;border:none;background:transparent;color:var(--mu);cursor:pointer;font-size:12px;font-family:var(--font);text-align:left;transition:all 0.12s;position:relative}
+.nBtn:hover{background:var(--card2);color:var(--tx)}
+.nBtn.on{background:var(--card2);color:var(--tx);font-weight:500}
+.nBtn.on .ni{opacity:1;color:var(--te)}
+.ni{flex-shrink:0;opacity:0.55;transition:opacity 0.12s}
+.nbadge{margin-left:auto;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700}
+.nb-r{background:var(--re-d);color:var(--re)}
+.nb-a{background:var(--am-d);color:var(--am)}
+.nb-t{background:var(--te-d);color:var(--te)}
+.sb-foot{margin-top:auto;border-top:1px solid var(--b1);padding:11px 12px}
+.uf{display:flex;align-items:center;gap:8px}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--surf);border-bottom:1px solid var(--b1);height:50px;padding:0 20px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:600;flex:1;letter-spacing:-0.2px}
+.content{flex:1;overflow-y:auto;padding:20px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:6px;border:1px solid transparent;cursor:pointer;font-size:12px;font-family:var(--font);font-weight:500;transition:all 0.12s;white-space:nowrap;text-decoration:none}
+.btn:disabled{opacity:0.4;cursor:not-allowed}
+.btn-primary{background:var(--te);color:#000;border-color:var(--te)}
+.btn-primary:hover:not(:disabled){filter:brightness(1.1)}
+.btn-ghost{background:transparent;color:var(--mu);border-color:var(--b1)}
+.btn-ghost:hover{background:var(--card2);color:var(--tx)}
+.btn-danger{background:var(--re-d);color:var(--re);border-color:rgba(239,69,69,0.25)}
+.btn-danger:hover{background:#4D1E1E}
+.btn-success{background:var(--gr-d);color:var(--gr);border-color:rgba(16,190,129,0.25)}
+.btn-success:hover{background:#164025}
+.btn-warning{background:var(--am-d);color:var(--am);border-color:rgba(245,166,35,0.25)}
+.btn-sm{padding:4px 9px;font-size:11px}
+.btn-xs{padding:3px 7px;font-size:10px}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--b1);border-radius:10px;padding:16px}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ct{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--mu)}
+
+/* ── GRID ── */
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.ga{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px}
+
+/* ── STAT CARDS ── */
+.sc{background:var(--card);border:1px solid var(--b1);border-radius:10px;padding:14px 16px}
+.sl{font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--mu);margin-bottom:5px}
+.sv{font-size:22px;font-weight:700;font-family:var(--mono);letter-spacing:-0.8px;line-height:1.1}
+.ss{font-size:10px;color:var(--mu);margin-top:3px}
+
+/* ── TABLE ── */
+.tw{overflow-x:auto;border-radius:8px;border:1px solid var(--b1)}
+table{width:100%;border-collapse:collapse}
+th{background:var(--surf);padding:8px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--mu);border-bottom:1px solid var(--b1);white-space:nowrap;font-weight:600}
+td{padding:9px 12px;border-bottom:1px solid var(--b1);font-size:12px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.015)}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600;white-space:nowrap}
+.b-gr{background:var(--gr-d);color:var(--gr)}
+.b-re{background:var(--re-d);color:var(--re)}
+.b-am{background:var(--am-d);color:var(--am)}
+.b-bl{background:var(--bl-d);color:var(--bl)}
+.b-mu{background:var(--b1);color:var(--mu)}
+.b-te{background:var(--te-d);color:var(--te)}
+.b-pu{background:var(--pu-d);color:var(--pu)}
+
+/* ── FORM ── */
+.fg{margin-bottom:12px}
+.fl{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--mu);margin-bottom:5px}
+.fi{width:100%;background:var(--surf);border:1px solid var(--b1);border-radius:6px;padding:7px 10px;color:var(--tx);font-size:12px;font-family:var(--font);outline:none;transition:border-color 0.12s;-webkit-appearance:none}
+.fi:focus{border-color:var(--te)}
+.fi::placeholder{color:var(--dim)}
+select.fi{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237A9BBF'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+textarea.fi{resize:vertical;min-height:72px}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+/* ── MODAL ── */
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px}
+.modal{background:var(--card);border:1px solid var(--b2);border-radius:13px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;animation:mi 0.14s ease}
+.modal-lg{max-width:680px}
+@keyframes mi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.mh{padding:18px 20px 0;display:flex;align-items:center;justify-content:space-between}
+.mt{font-size:15px;font-weight:600}
+.mb{padding:14px 20px}
+.mf{padding:0 20px 18px;display:flex;gap:8px;justify-content:flex-end}
+
+/* ── TOAST ── */
+.toasts{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:300;pointer-events:none}
+.toast{background:var(--card);border:1px solid var(--b2);border-radius:8px;padding:10px 14px;font-size:12px;display:flex;align-items:center;gap:8px;animation:ti 0.2s ease;box-shadow:0 4px 24px rgba(0,0,0,0.4);pointer-events:auto}
+.toast.s{border-left:3px solid var(--gr)}
+.toast.e{border-left:3px solid var(--re)}
+.toast.i{border-left:3px solid var(--te)}
+@keyframes ti{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
+
+/* ── TICKETS ── */
+.ticket-list{display:flex;flex-direction:column;gap:7px}
+.ti-row{background:var(--card);border:1px solid var(--b1);border-radius:8px;padding:11px 14px;cursor:pointer;transition:all 0.12s;display:flex;align-items:center;gap:10px}
+.ti-row:hover{border-color:var(--b2)}
+.ti-row.sel{border-color:var(--te);background:rgba(11,191,163,0.04)}
+.ti-row.emergency{border-left:3px solid var(--re)}
+.ti-row.urgent{border-left:3px solid var(--am)}
+.ti-row.routine{border-left:3px solid var(--dim)}
+.urg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ue{background:var(--re)}
+.uu{background:var(--am)}
+.ur{background:var(--dim)}
+
+/* ── SPLIT ── */
+.split{display:flex;gap:14px;height:calc(100vh - 110px)}
+.sl-left{width:340px;flex-shrink:0;display:flex;flex-direction:column;gap:7px;overflow-y:auto}
+.sl-right{flex:1;overflow-y:auto;background:var(--card);border:1px solid var(--b1);border-radius:10px;padding:18px}
+
+/* ── AVATAR ── */
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+
+/* ── MESSAGE THREAD ── */
+.thread{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;max-height:200px;overflow-y:auto}
+.msg{padding:9px 12px;border-radius:8px;font-size:12px;max-width:88%}
+.msg-sys{background:rgba(61,90,122,0.2);border:1px solid var(--b1);color:var(--mu);font-style:italic;align-self:center;max-width:100%;text-align:center}
+.msg-pm{background:var(--te-d);border:1px solid rgba(11,191,163,0.2);align-self:flex-end}
+.msg-tenant{background:var(--bl-d);border:1px solid rgba(77,166,255,0.2);align-self:flex-start}
+.msg-vendor{background:var(--am-d);border:1px solid rgba(245,166,35,0.2);align-self:flex-start}
+.msg-meta{font-size:9px;color:var(--dim);margin-top:3px}
+
+/* ── UNIT CARD ── */
+.uc{background:var(--card);border:1px solid var(--b1);border-radius:8px;padding:12px;cursor:pointer;transition:all 0.12s}
+.uc:hover{border-color:var(--te);transform:translateY(-1px)}
+
+/* ── EMPTY STATE ── */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--dim);padding:40px}
+
+/* ── CHART BARS ── */
+.chart{display:flex;align-items:flex-end;gap:6px;height:100px;padding:0 0 2px}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar{width:100%;border-radius:3px 3px 0 0;min-height:2px;transition:height 0.4s ease}
+.bar-label{font-size:9px;color:var(--mu)}
+.bar-val{font-size:9px;color:var(--tx);font-family:var(--mono)}
+
+/* ── MISC ── */
+.divider{border:none;border-top:1px solid var(--b1);margin:12px 0}
+.section-gap{margin-bottom:16px}
+.flex{display:flex}.ai{align-items:center}.jb{justify-content:space-between}
+.gap1{gap:4px}.gap2{gap:8px}.gap3{gap:12px}.gap4{gap:16px}
+.fw5{font-weight:500}.fw6{font-weight:600}.fw7{font-weight:700}
+.mono{font-family:var(--mono)}
+.c-te{color:var(--te)}.c-re{color:var(--re)}.c-am{color:var(--am)}.c-gr{color:var(--gr)}.c-mu{color:var(--mu)}
+.mt2{margin-top:8px}.mt3{margin-top:12px}.mt4{margin-top:16px}
+.mb2{margin-bottom:8px}.mb3{margin-bottom:12px}.mb4{margin-bottom:16px}
+.trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.loader{display:flex;align-items:center;justify-content:center;height:120px;color:var(--mu);font-size:12px;gap:8px}
+.spin{width:16px;height:16px;border:2px solid var(--b1);border-top-color:var(--te);border-radius:50%;animation:sp 0.6s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="sb" id="sidebar"></div>
+  <div class="main">
+    <div class="topbar" id="topbar"></div>
+    <div class="content" id="content"><div class="loader"><div class="spin"></div>Loading...</div></div>
+  </div>
+</div>
+<div class="toasts" id="toasts"></div>
+
+<script>
+'use strict';
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let state = { portal: 'pm', view: 'dashboard', selTicket: null };
+
+// ── API ───────────────────────────────────────────────────────────────────────
+async function api(method, path, body) {
+  const opts = { method, headers: {} };
+  if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+  const r = await fetch('/api' + path, opts);
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+const GET = p => api('GET', p);
+const POST = (p, b) => api('POST', p, b);
+const PUT = (p, b) => api('PUT', p, b);
+const DEL = p => api('DELETE', p);
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function $ (id) { return document.getElementById(id); }
+
+function svg(path, size = 14, extra = '') {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ${extra}><path d="${path}"/></svg>`;
+}
+
+const I = {
+  home: 'M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z',
+  building: 'M3 21h18M9 21V7l6-4v18M9 7H3v14h6',
+  wrench: 'M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3-3a1 1 0 000-1.4l-1.6-1.6a1 1 0 00-1.4 0l-3 3zM3 21v-3.5L13.5 7l3.5 3.5L6.5 21H3z',
+  dollar: 'M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6',
+  users: 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75',
+  key: 'M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.78 7.78 5.5 5.5 0 017.77-7.77zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4',
+  shield: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
+  plus: 'M12 5v14M5 12h14',
+  edit: 'M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z',
+  trash: 'M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6',
+  check: 'M20 6L9 17l-5-5',
+  x: 'M18 6L6 18M6 6l12 12',
+  send: 'M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z',
+  zap: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z',
+  inbox: 'M22 12h-6l-2 3h-4l-2-3H2M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z',
+  chart: 'M18 20V10M12 20V4M6 20v-6',
+  bell: 'M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0',
+  alert: 'M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01',
+};
+
+function av(name = '?', size = 28) {
+  const initials = (name || '?').split(' ').map(w => w[0] || '').join('').slice(0, 2).toUpperCase();
+  const palette = ['#0BBFA3','#9B72F5','#4DA6FF','#F5A623','#EF4545','#10BE81','#EC4899'];
+  const c = palette[(name || '?').charCodeAt(0) % palette.length];
+  return `<div class="av" style="width:${size}px;height:${size}px;background:${c}22;border:1px solid ${c}44;color:${c};font-size:${Math.round(size*0.38)}px">${initials}</div>`;
+}
+
+function badge(s) {
+  const map = {
+    paid: 'b-gr', late: 'b-re', pending: 'b-am', failed: 'b-re',
+    open: 'b-am', in_progress: 'b-bl', completed: 'b-gr', assigned: 'b-te', scheduled: 'b-te', cancelled: 'b-mu',
+    active: 'b-gr', available: 'b-gr', busy: 'b-am', suspended: 'b-re',
+    occupied: 'b-te', vacant: 'b-mu', expiring: 'b-am', maintenance: 'b-re',
+    emergency: 'b-re', urgent: 'b-am', routine: 'b-mu',
+    Pass: 'b-gr', Review: 'b-am', Fail: 'b-re', Pending: 'b-mu',
+    terminated: 'b-re', expired: 'b-mu',
+  };
+  const labels = {
+    paid: 'Paid', late: 'Late', pending: 'Pending', failed: 'Failed',
+    open: 'Open', in_progress: 'In Progress', completed: 'Done', assigned: 'Assigned', scheduled: 'Scheduled', cancelled: 'Cancelled',
+    active: 'Active', available: 'Available', busy: 'Busy', suspended: 'Suspended',
+    occupied: 'Occupied', vacant: 'Vacant', expiring: 'Expiring', maintenance: 'Maintenance',
+    emergency: 'Emergency', urgent: 'Urgent', routine: 'Routine',
+    Pass: 'BG Pass', Review: 'BG Review', Fail: 'BG Fail', Pending: 'Pending',
+    terminated: 'Terminated', expired: 'Expired',
+  };
+  return `<span class="badge ${map[s] || 'b-mu'}">${labels[s] || s}</span>`;
+}
+
+function money(v) { return '$' + (parseFloat(v) || 0).toLocaleString('en-US', {minimumFractionDigits: 0}); }
+function fmtDate(s) { if (!s) return '—'; try { return new Date(s).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'}); } catch(e) { return s; } }
+function timeAgo(s) { if (!s) return '—'; const d = (Date.now() - new Date(s)) / 1000; if (d < 3600) return Math.round(d/60) + 'm ago'; if (d < 86400) return Math.round(d/3600) + 'h ago'; return Math.round(d/86400) + 'd ago'; }
+
+function toast(msg, type = 'success') {
+  const icons = { success: '✓', error: '✗', info: 'ℹ' };
+  const colors = { success: 'var(--gr)', error: 'var(--re)', info: 'var(--te)' };
+  const el = document.createElement('div');
+  el.className = `toast ${type[0]}`;
+  el.innerHTML = `<span style="color:${colors[type]};font-weight:700;font-size:14px">${icons[type]}</span>${msg}`;
+  $('toasts').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function showModal(html, lg = false) {
+  const bd = document.createElement('div');
+  bd.className = 'backdrop';
+  bd.id = 'modal-backdrop';
+  bd.innerHTML = `<div class="modal${lg ? ' modal-lg' : ''}">${html}</div>`;
+  bd.addEventListener('click', e => { if (e.target === bd) closeModal(); });
+  document.body.appendChild(bd);
+}
+function closeModal() { document.getElementById('modal-backdrop')?.remove(); }
+
+// ── PORTALS & NAV ─────────────────────────────────────────────────────────────
+const portals = [
+  { id: 'pm', label: 'Property Manager', user: 'Patricia Davis', role: 'PM · 8 Units', color: '#0BBFA3' },
+  { id: 'tenant', label: 'Tenant', user: 'Tyler Ramos', role: 'Tenant · Unit 103', color: '#9B72F5' },
+  { id: 'vendor', label: 'Vendor', user: 'Victor Chen', role: 'Plumber · 4.9★', color: '#F5A623' },
+  { id: 'admin', label: 'Admin', user: 'Admin', role: 'Platform Ops', color: '#EF4545' },
+];
+
+const pmNav = [
+  { id: 'dashboard', label: 'Dashboard', icon: I.home },
+  { id: 'units', label: 'Units & Leases', icon: I.building },
+  { id: 'leases', label: 'Leases', icon: I.key },
+  { id: 'tenants', label: 'Tenants', icon: I.users },
+  { id: 'payments', label: 'Payments', icon: I.dollar },
+  { id: 'maintenance', label: 'Maintenance', icon: I.wrench },
+  { id: 'vendors', label: 'Vendors', icon: I.shield },
+];
+
+const viewTitles = {
+  dashboard: 'Dashboard', units: 'Units & Leases', leases: 'Lease Management',
+  tenants: 'Tenant Directory', payments: 'Payment Center',
+  maintenance: 'Maintenance Inbox', vendors: 'Vendor Marketplace',
+};
+
+function renderSidebar() {
+  const cur = portals.find(p => p.id === state.portal);
+  $('sidebar').innerHTML = `
+    <div class="sb-logo">
+      <div class="logo-icon">OP</div>
+      <div><div class="logo-name">OpFirst PMS</div><div class="logo-ver">v1.2 Beta</div></div>
+    </div>
+    <div class="sb-portals">
+      <div class="sb-label">Portal</div>
+      ${portals.map(p => `<button class="pBtn ${p.id === state.portal ? 'on' : ''}" onclick="switchPortal('${p.id}')">
+        <div class="pip" style="background:${p.id === state.portal ? p.color : 'var(--dim)'}"></div>${p.label}
+      </button>`).join('')}
+    </div>
+    ${state.portal === 'pm' ? `
+    <div class="sb-nav">
+      <div class="sb-label">Navigation</div>
+      ${pmNav.map(n => `<button class="nBtn ${state.view === n.id ? 'on' : ''}" onclick="navigate('${n.id}')">
+        <span class="ni">${svg(n.icon, 13)}</span>${n.label}
+      </button>`).join('')}
+    </div>` : ''}
+    <div class="sb-foot">
+      <div class="uf">
+        ${av(cur.user, 28)}
+        <div style="flex:1;min-width:0">
+          <div style="font-size:11px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${cur.user}</div>
+          <div style="font-size:10px;color:var(--mu)">${cur.role}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderTopbar() {
+  const cur = portals.find(p => p.id === state.portal);
+  const title = state.portal === 'pm' ? (viewTitles[state.view] || 'Dashboard') : cur.label + ' Portal';
+  $('topbar').innerHTML = `
+    <div class="topbar-title">${title}</div>
+    <span class="badge b-te" style="font-size:10px">● Live Data</span>
+    ${state.portal === 'pm' && state.view === 'maintenance' ? `
+      <button class="btn btn-primary btn-sm" onclick="modalNewTicket()">${svg(I.plus,12)} New Ticket</button>` : ''}`;
+}
+
+function switchPortal(p) {
+  state.portal = p;
+  state.view = 'dashboard';
+  state.selTicket = null;
+  renderAll();
+  if (p === 'pm') loadView('dashboard');
+  else renderOtherPortal();
+}
+
+function navigate(v) {
+  state.view = v;
+  state.selTicket = null;
+  renderAll();
+  loadView(v);
+}
+
+function renderAll() { renderSidebar(); renderTopbar(); }
+
+// ── LOADING ───────────────────────────────────────────────────────────────────
+function loading() { $('content').innerHTML = '<div class="loader"><div class="spin"></div>Loading...</div>'; }
+
+function loadView(v) {
+  loading();
+  const views = {
+    dashboard: viewDashboard,
+    units: viewUnits,
+    leases: viewLeases,
+    tenants: viewTenants,
+    payments: viewPayments,
+    maintenance: viewMaintenance,
+    vendors: viewVendors,
+  };
+  (views[v] || viewDashboard)();
+}
+
+// ── BAR CHART ─────────────────────────────────────────────────────────────────
+function barChart(data, valueKey, labelKey, color = 'var(--te)') {
+  const max = Math.max(...data.map(d => parseFloat(d[valueKey]) || 0), 1);
+  return `<div class="chart">${data.map(d => {
+    const v = parseFloat(d[valueKey]) || 0;
+    const h = Math.round((v / max) * 88) + 2;
+    return `<div class="bar-wrap">
+      <div class="bar-val">${v > 999 ? '$' + Math.round(v/1000) + 'k' : v}</div>
+      <div class="bar" style="height:${h}px;background:${color}"></div>
+      <div class="bar-label">${d[labelKey]}</div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+async function viewDashboard() {
+  try {
+    const [dash, payments, tickets] = await Promise.all([GET('/dashboard'), GET('/payments'), GET('/tickets')]);
+
+    const unitMap = {};
+    (dash.units || []).forEach(u => unitMap[u.status] = parseInt(u.count) || 0);
+    const payMap = {};
+    (dash.payments || []).forEach(p => payMap[p.status] = { count: parseInt(p.count) || 0, total: parseFloat(p.total) || 0 });
+
+    const collected = payMap['paid']?.total || 0;
+    const late = payMap['late']?.count || 0;
+    const openT = (dash.tickets || []).filter(t => t.status !== 'completed' && t.status !== 'cancelled').reduce((a, t) => a + parseInt(t.count), 0);
+    const emerg = (dash.tickets || []).filter(t => t.urgency === 'emergency').reduce((a, t) => a + parseInt(t.count), 0);
+
+    const recentPay = (payments || []).filter(p => p.status !== 'paid').slice(0, 4);
+    const urgentT = (tickets || []).filter(t => t.status !== 'completed' && t.status !== 'cancelled').slice(0, 6);
+    const rev = dash.revenue || [];
+
+    $('content').innerHTML = `
+      <div class="g4 section-gap">
+        ${[
+          { l: 'Mar Revenue', v: money(collected), s: `${payMap['paid']?.count || 0} of ${Object.values(payMap).reduce((a, p) => a + p.count, 0)} tenants paid`, c: 'c-te' },
+          { l: 'Occupancy', v: `${unitMap['occupied'] || 0}/${Object.values(unitMap).reduce((a, c) => a + c, 0)}`, s: `${unitMap['vacant'] || 0} vacant · ${unitMap['expiring'] || 0} expiring` },
+          { l: 'Open Tickets', v: openT, s: `${emerg} emergency`, c: emerg > 0 ? 'c-re' : 'c-am' },
+          { l: 'Late Payments', v: late > 0 ? `${late} late` : 'All clear', s: `${late} tenant${late !== 1 ? 's' : ''} behind`, c: late > 0 ? 'c-re' : 'c-gr' },
+        ].map(s => `<div class="sc"><div class="sl">${s.l}</div><div class="sv ${s.c || ''}">${s.v}</div><div class="ss">${s.s}</div></div>`).join('')}
+      </div>
+      <div class="g2 section-gap">
+        <div class="card">
+          <div class="ch"><span class="ct">Revenue (6 Months)</span></div>
+          ${rev.length ? barChart(rev, 'collected', 'month', 'var(--te)') : '<div class="loader" style="height:100px">No data yet</div>'}
+        </div>
+        <div class="card">
+          <div class="ch"><span class="ct">Pending Payments</span><button class="btn btn-ghost btn-sm" onclick="navigate('payments')">View All</button></div>
+          ${recentPay.length ? recentPay.map(p => `
+            <div class="flex ai gap2" style="padding:7px 0;border-bottom:1px solid var(--b1)">
+              ${av(p.tenant_name, 26)}
+              <div style="flex:1;min-width:0"><div class="fw5 trunc">${p.tenant_name}</div><div style="font-size:10px;color:var(--mu)">Unit ${p.unit_number}</div></div>
+              <div style="text-align:right"><div class="mono fw6 c-am">${money(p.amount)}</div>${badge(p.status)}</div>
+            </div>`).join('') : '<div class="empty">✓ All payments collected</div>'}
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ct">Active Tickets</span><button class="btn btn-ghost btn-sm" onclick="navigate('maintenance')">View Inbox</button></div>
+        ${urgentT.length ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${urgentT.map(t => `
+          <div class="ti-row ${t.urgency}" onclick="navigate('maintenance');setTimeout(()=>selectTicket(${t.id}),300)">
+            <div class="urg-dot u${t.urgency[0]}"></div>
+            <div style="flex:1;min-width:0">
+              <div class="trunc fw5">${t.title}</div>
+              <div style="font-size:10px;color:var(--mu);margin-top:2px">Unit ${t.unit_number} · ${t.category}</div>
+            </div>
+            ${badge(t.status)}
+          </div>`).join('')}</div>` : '<div class="empty">✓ No open tickets</div>'}
+      </div>`;
+  } catch(e) { $('content').innerHTML = `<div class="empty" style="color:var(--re)">Error: ${e.message}</div>`; }
+}
+
+// ── UNITS ─────────────────────────────────────────────────────────────────────
+async function viewUnits() {
+  try {
+    const units = await GET('/units');
+    const occ = units.filter(u => u.status === 'occupied').length;
+    const vac = units.filter(u => u.status === 'vacant').length;
+    const rent = units.filter(u => u.status !== 'vacant').reduce((a, u) => a + parseFloat(u.monthly_rent || 0), 0);
+
+    $('content').innerHTML = `
+      <div class="g3 section-gap">
+        ${[
+          { l: 'Occupied', v: `${occ}/${units.length}`, s: 'Active tenants' },
+          { l: 'Vacant', v: vac, s: 'Available now' },
+          { l: 'Monthly Rent', v: money(rent), s: 'Gross scheduled' },
+        ].map(s => `<div class="sc"><div class="sl">${s.l}</div><div class="sv">${s.v}</div><div class="ss">${s.s}</div></div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="ch">
+          <span class="ct">Units</span>
+          <button class="btn btn-primary btn-sm" onclick="modalAddUnit()">${svg(I.plus,12)} Add Unit</button>
+        </div>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Unit</th><th>Status</th><th>Tenant</th><th>Rent/mo</th><th>Lease End</th><th>Payment</th><th>Actions</th></tr></thead>
+            <tbody>
+              ${units.map(u => `<tr>
+                <td><span class="mono fw7">${u.unit_number}</span></td>
+                <td>${badge(u.status)}</td>
+                <td>${u.tenant_name ? `<div class="flex ai gap2">${av(u.tenant_name, 22)}<span>${u.tenant_name}</span></div>` : '<span class="c-mu">—</span>'}</td>
+                <td><span class="mono c-te fw6">${money(u.monthly_rent)}</span></td>
+                <td><span style="font-size:11px;color:${u.status === 'expiring' ? 'var(--am)' : 'var(--mu)'}">${u.end_date ? fmtDate(u.end_date) : '—'}</span></td>
+                <td>${u.tenant_name ? badge(u.payment_status || 'pending') : '<span class="c-mu">—</span>'}</td>
+                <td>
+                  <div class="flex gap1">
+                    <button class="btn btn-ghost btn-xs" onclick="modalEditUnit(${u.id})">${svg(I.edit,11)}</button>
+                    ${u.status === 'vacant' ? `<button class="btn btn-primary btn-xs" onclick="modalAddLease(${u.id})">Lease</button>` : ''}
+                    <button class="btn btn-danger btn-xs" onclick="deleteUnit(${u.id})">${svg(I.trash,11)}</button>
+                  </div>
+                </td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+  } catch(e) { $('content').innerHTML = `<div class="empty" style="color:var(--re)">Error: ${e.message}</div>`; }
+}
+
+// ── LEASES ────────────────────────────────────────────────────────────────────
+async function viewLeases() {
+  try {
+    const leases = await GET('/leases');
+    const active = leases.filter(l => l.status === 'active');
+    const rent = active.reduce((a, l) => a + parseFloat(l.monthly_rent), 0);
+
+    $('content').innerHTML = `
+      <div class="g3 section-gap">
+        ${[
+          { l: 'Active Leases', v: active.length, s: 'Currently running' },
+          { l: 'Monthly Revenue', v: money(rent), s: 'Gross scheduled' },
+          { l: 'Avg Lease Value', v: active.length ? money(rent / active.length) : '$0', s: 'Per unit per month' },
+        ].map(s => `<div class="sc"><div class="sl">${s.l}</div><div class="sv">${s.v}</div><div class="ss">${s.s}</div></div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="ch">
+          <span class="ct">Leases</span>
+          <button class="btn btn-primary btn-sm" onclick="modalNewLease()">${svg(I.plus,12)} New Lease</button>
+        </div>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Unit</th><th>Tenant</th><th>Rent</th><th>Deposit</th><th>Start</th><th>End</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              ${leases.map(l => `<tr>
+                <td><span class="mono fw7">Unit ${l.unit_number}</span></td>
+                <td><div class="flex ai gap2">${av(l.tenant_name, 22)}<span>${l.tenant_name}</span></div></td>
+                <td><span class="mono c-te fw6">${money(l.monthly_rent)}</span></td>
+                <td><span class="mono c-mu">${money(l.security_deposit)}</span></td>
+                <td style="font-size:11px">${fmtDate(l.start_date)}</td>
+                <td style="font-size:11px">${fmtDate(l.end_date)}</td>
+                <td>${badge(l.status)}</td>
+                <td>${l.status === 'active' ? `<button class="btn btn-danger btn-xs" onclick="terminateLease(${l.id})">Terminate</button>` : ''}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+  } catch(e) { $('content').innerHTML = `<div class="empty" style="color:var(--re)">Error: ${e.message}</div>`; }
+}
+
+// ── TENANTS ───────────────────────────────────────────────────────────────────
+async function viewTenants() {
+  try {
+    const tenants = await GET('/tenants');
+    $('content').innerHTML = `
+      <div class="g3 section-gap">
+        ${[
+          { l: 'Total Tenants', v: tenants.length, s: 'All time' },
+          { l: 'Active Leases', v: tenants.filter(t => t.lease_status === 'active').length, s: 'Currently placed' },
+          { l: 'Without Lease', v: tenants.filter(t => !t.lease_status).length, s: 'No active placement' },
+        ].map(s => `<div class="sc"><div class="sl">${s.l}</div><div class="sv">${s.v}</div><div class="ss">${s.s}</div></div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="ch">
+          <span class="ct">Tenant Directory</span>
+          <div class="flex gap2">
+            <input class="fi" style="width:180px;padding:5px 10px" placeholder="Search..." oninput="filterTenants(this.value)" id="tenant-search">
+            <button class="btn btn-primary btn-sm" onclick="modalAddTenant()">${svg(I.plus,12)} Add Tenant</button>
+          </div>
+        </div>
+        <div class="tw" id="tenant-table">
+          ${renderTenantTable(tenants)}
+        </div>
+      </div>`;
+    window._tenants = tenants;
+  } catch(e) { $('content').innerHTML = `<div class="empty" style="color:var(--re)">Error: ${e.message}</div>`; }
+}
+
+function filterTenants(q) {
+  const filtered = (window._tenants || []).filter(t => (t.first_name + ' ' + t.last_name + t.email).toLowerCase().includes(q.toLowerCase()));
+  $('tenant-table').innerHTML = renderTenantTable(filtered);
+}
+
+function renderTenantTable(tenants) {
+  return `<table>
+    <thead><tr><th>Tenant</th><th>Email</th><th>Phone</th><th>Unit</th><th>Lease End</th><th>Rent</th><th>Actions</th></tr></thead>
+    <tbody>
+      ${tenants.map(t => `<tr>
+        <td><div class="flex ai gap2">${av(t.first_name + ' ' + t.last_name, 28)}<div><div class="fw5">${t.first_name} ${t.last_name}</div></div></div></td>
+        <td style="font-size:11px;color:var(--mu)">${t.email}</td>
+        <td style="font-size:11px;color:var(--mu)">${t.phone || '—'}</td>
+        <td>${t.unit_number ? `<span class="mono fw6">Unit ${t.unit_number}</span>` : '<span class="c-mu">—</span>'}</td>
+        <td style="font-size:11px">${t.end_date ? fmtDate(t.end_date) : '—'}</td>
+        <td>${t.monthly_rent ? `<span class="mono c-te">${money(t.monthly_rent)}</span>` : '<span class="c-mu">—</span>'}</td>
+        <td><div class="flex gap1">
+          <button class="btn btn-ghost btn-xs" onclick="modalEditTenant(${t.id})">${svg(I.edit,11)}</button>
+          <button class="btn btn-danger btn-xs" onclick="deleteTenant(${t.id})">${svg(I.trash,11)}</button>
+        </div></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+// ── PAYMENTS ──────────────────────────────────────────────────────────────────
+async function viewPayments() {
+  try {
+    const payments = await GET('/payments');
+    window._payments = payments;
+    const collected = payments.filter(p => p.status === 'paid').reduce((a, p) => a + parseFloat(p.amount), 0);
+    const outstanding = payments.filter(p => p.status !== 'paid').reduce((a, p) => a + parseFloat(p.amount), 0);
+    const late = payments.filter(p => p.status === 'late').length;
+
+    $('content').innerHTML = `
+      <div class="g4 section-gap">
+        ${[
+          { l: 'Collected', v: money(collected), s: `${payments.filter(p => p.status === 'paid').length} payments`, c: 'c-te' },
+          { l: 'Outstanding', v: money(outstanding), s: `${payments.filter(p => p.status !== 'paid').length} unpaid` },
+          { l: 'Late', v: late, s: `${late} tenants behind`, c: late > 0 ? 'c-re' : 'c-gr' },
+          { l: 'Collection Rate', v: payments.length ? Math.round(payments.filter(p => p.status === 'paid').length / payments.length * 100) + '%' : '—', s: 'This period', c: 'c-gr' },
+        ].map(s => `<div class="sc"><div class="sl">${s.l}</div><div class="sv ${s.c || ''}">${s.v}</div><div class="ss">${s.s}</div></div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="ch">
+          <div class="flex gap2" id="pay-filters">
+            ${['all','paid','pending','late','failed'].map(f => `<button class="btn btn-ghost btn-xs" onclick="filterPayments('${f}')" id="pf-${f}">${f.charAt(0).toUpperCase() + f.slice(1)}</button>`).join('')}
+          </div>
+          <div class="flex gap2">
+            <button class="btn btn-ghost btn-sm">Export CSV</button>
+            <button class="btn btn-primary btn-sm" onclick="modalAddPayment()">${svg(I.plus,12)} Add Record</button>
+          </div>
+        </div>
+        <div class="tw" id="pay-table">${renderPaymentTable(payments)}</div>
+      </div>`;
+    setPayFilter('all');
+  } catch(e) { $('content').innerHTML = `<div class="empty" style="color:var(--re)">Error: ${e.message}</div>`; }
+}
+
+let _payFilter = 'all';
+function setPayFilter(f) {
+  _payFilter = f;
+  document.querySelectorAll('[id^="pf-"]').forEach(b => b.classList.remove('btn-primary'));
+  document.getElementById('pf-' + f)?.classList.add('btn-primary');
+}
+function filterPayments(f) {
+  setPayFilter(f);
+  const filtered = f === 'all' ? window._payments : (window._payments || []).filter(p => p.status === f);
+  $('pay-table').innerHTML = renderPaymentTable(filtered);
+}
+
+function renderPaymentTable(payments) {
+  return `<table>
+    <thead><tr><th>Tenant</th><th>Unit</th><th>Amount</th><th>Method</th><th>Due</th><th>Paid</th><th>Transaction</th><th>Status</th><th>Action</th></tr></thead>
+    <tbody>
+      ${payments.map(p => `<tr>
+        <td><div class="flex ai gap2">${av(p.tenant_name, 22)}<span>${p.tenant_name}</span></div></td>
+        <td><span class="mono">Unit ${p.unit_number}</span></td>
+        <td><span class="mono fw6 c-te">${money(p.amount)}</span></td>
+        <td style="color:var(--mu);font-size:11px">${p.method || '—'}</td>
+        <td style="font-size:11px">${fmtDate(p.due_date)}</td>
+        <td style="font-size:11px;color:var(--mu)">${p.paid_date ? fmtDate(p.paid_date) : '—'}</td>
+        <td><span class="mono" style="font-size:10px;color:var(--dim)">${p.transaction_id || '—'}</span></td>
+        <td>${badge(p.status)}</td>
+        <td>${
+          p.status === 'pending' || p.status === 'late'
+            ? `<button class="btn btn-success btn-xs" onclick="collectPayment(${p.id})">${svg(I.check,10)} Collect</button>`
+            : p.status === 'paid' ? '<span style="font-size:10px;color:var(--dim)">Receipt sent</span>'
+            : ''
+        }</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+async function collectPayment(id) {
+  showModal(`
+    <div class="mh"><div class="mt">Collect Payment</div><button class="btn btn-ghost btn-xs" onclick="closeModal()">${svg(I.x,13)}</button></div>
+    <div class="mb">
+      <div class="fg"><label class="fl">Payment Method</label>
+        <select class="fi" id="pay-method">
+          <option value="ACH">ACH Bank Transfer (Free)</option>
+          <option value="Card">Debit / Credit Card</option>
+          <option value="Autopay">Autopay (ACH)</option>
+          <option value="Cash">Cash</option>
+          <option value="Check">Check</option>
+        </select>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitPayment(${id})">Confirm Payment</button>
+    </div>`);
+}
+
+async function submitPayment(id) {
+  const method = document.getElementById('pay-method').value;
+  try {
+    await PUT(`/payments/${id}`, { status: 'paid', method });
+    toast('Payment recorded. Receipt generated!');
+    closeModal();
+    viewPayments();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ── MAINTENANCE ───────────────────────────────────────────────────────────────
+async function viewMaintenance() {
+  try {
+    const tickets = await GET('/tickets');
+    window._tickets = tickets;
+    renderMaintenanceLayout(tickets);
+  } catch(e) { $('content').innerHTML = `<div class="empty" style="color:var(--re)">Error: ${e.message}</div>`; }
+}
+
+function renderMaintenanceLayout(tickets) {
+  const filters = ['all','emergency','urgent','routine','open','in_progress','completed'];
+  $('content').innerHTML = `
+    <div class="split">
+      <div class="sl-left">
+        <div class="flex gap2 mb2" style="flex-wrap:wrap">
+          ${filters.map(f => `<button class="btn btn-ghost btn-xs" onclick="filterTickets('${f}')" id="tf-${f}">${f.replace('_',' ')}</button>`).join('')}
+        </div>
+        <div id="ticket-list-inner">
+          ${renderTicketList(tickets)}
+        </div>
+      </div>
+      <div id="ticket-detail-pane" class="sl-right" style="display:flex;align-items:center;justify-content:center;color:var(--dim);flex-direction:column;gap:8px">
+        ${svg(I.inbox, 32)}<div style="font-size:12px">Select a ticket to manage it</div>
+      </div>
+    </div>`;
+  setTicketFilter('all');
+}
+
+let _ticketFilter = 'all';
+function setTicketFilter(f) {
+  _ticketFilter = f;
+  document.querySelectorAll('[id^="tf-"]').forEach(b => b.classList.remove('btn-primary'));
+  document.getElementById('tf-' + f)?.classList.add('btn-primary');
+}
+function filterTickets(f) {
+  setTicketFilter(f);
+  const filtered = f === 'all' ? window._tickets : (window._tickets || []).filter(t => t.urgency === f || t.status === f);
+  $('ticket-list-inner').innerHTML = renderTicketList(filtered);
+}
+
+function renderTicketList(tickets) {
+  if (!tickets.length) return '<div class="empty">No tickets</div>';
+  return tickets.map(t => `
+    <div class="ti-row ${t.urgency} ${state.selTicket === t.id ? 'sel' : ''}" onclick="selectTicket(${t.id})" id="trow-${t.id}">
+      <div class="urg-dot u${t.urgency[0]}"></div>
+      <div style="flex:1;min-width:0">
+        <div class="trunc fw5">${t.title}</div>
+        <div style="font-size:10px;color:var(--mu);margin-top:2px">Unit ${t.unit_number} · ${t.category} · ${timeAgo(t.created_at)}</div>
+      </div>
+      ${badge(t.status)}
+    </div>`).join('');
+}
+
+async function selectTicket(id) {
+  state.selTicket = id;
+  document.querySelectorAll('.ti-row').forEach(r => r.classList.remove('sel'));
+  document.getElementById('trow-' + id)?.classList.add('sel');
+  const pane = $('ticket-detail-pane');
+  pane.innerHTML = '<div class="loader"><div class="spin"></div>Loading...</div>';
+  try {
+    const t = await GET('/tickets/' + id);
+    renderTicketDetail(t);
+  } catch(e) { pane.innerHTML = `<div class="empty" style="color:var(--re)">Error: ${e.message}</div>`; }
+}
+
+function renderTicketDetail(t) {
+  const pane = $('ticket-detail-pane');
+  pane.style.display = 'block';
+  const statusActions = {
+    open: `<button class="btn btn-ghost btn-sm" onclick="updateTicket(${t.id},'assigned')">Mark Assigned</button>`,
+    assigned: `<button class="btn btn-ghost btn-sm" onclick="updateTicket(${t.id},'in_progress')">Mark In Progress</button>`,
+    in_progress: `<button class="btn btn-success btn-sm" onclick="updateTicket(${t.id},'completed')">${svg(I.check,12)} Mark Complete</button>`,
+    completed: '',
+    cancelled: '',
+  };
+
+  pane.innerHTML = `
+    <div class="flex ai jb mb3">
+      <div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:3px">${t.title}</div>
+        <div style="font-size:11px;color:var(--mu)">TKT-${String(t.id).padStart(4,'0')} · Unit ${t.unit_number} · ${t.category}</div>
+      </div>
+      <div class="flex gap2">
+        ${badge(t.urgency)}${badge(t.status)}
+        <button class="btn btn-danger btn-xs" onclick="deleteTicket(${t.id})">${svg(I.trash,11)}</button>
+      </div>
+    </div>
+    <hr class="divider">
+    <div class="g2 mb3">
+      <div style="background:var(--surf);border-radius:8px;padding:12px">
+        <div style="font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Tenant</div>
+        ${t.tenant_name ? `<div class="flex ai gap2">${av(t.tenant_name, 32)}
+          <div><div class="fw5">${t.tenant_name}</div><div style="font-size:10px;color:var(--mu)">${t.tenant_phone || t.tenant_email || '—'}</div></div>
+        </div>` : '<span class="c-mu">No tenant</span>'}
+      </div>
+      <div style="background:var(--surf);border-radius:8px;padding:12px">
+        <div style="font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Vendor</div>
+        ${t.vendor_name ? `<div class="flex ai gap2">${av(t.vendor_name, 32)}
+          <div><div class="fw5">${t.vendor_name}</div><div style="font-size:10px;color:var(--te)">${t.scheduled_window || 'Scheduling...'}</div></div>
+        </div>` : `<button class="btn btn-primary btn-sm" onclick="modalDispatch(${t.id})">${svg(I.zap,12)} Dispatch Vendor</button>`}
+      </div>
+    </div>
+    ${t.description ? `<div style="background:var(--surf);border-radius:8px;padding:11px;font-size:12px;color:var(--mu);line-height:1.6;margin-bottom:12px">${t.description}</div>` : ''}
+    <div class="flex gap2 mb3" style="flex-wrap:wrap">
+      ${statusActions[t.status] || ''}
+      ${t.status !== 'completed' && t.status !== 'cancelled' ? `<button class="btn btn-danger btn-sm" onclick="updateTicket(${t.id},'cancelled')">Cancel Ticket</button>` : ''}
+      ${t.status === 'open' || t.status === 'assigned' ? `<button class="btn btn-ghost btn-sm" onclick="modalDispatch(${t.id})">${svg(I.zap,12)} ${t.vendor_name ? 'Re-Dispatch' : 'Dispatch'}</button>` : ''}
+    </div>
+    <div style="font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Message Thread</div>
+    <div class="thread" id="thread-${t.id}">
+      ${(t.messages || []).map(m => `
+        <div class="msg msg-${m.sender_type}">
+          <div>${m.body}</div>
+          <div class="msg-meta">${m.sender_name} · ${timeAgo(m.created_at)}</div>
+        </div>`).join('')}
+    </div>
+    <div class="flex gap2">
+      <input class="fi" style="flex:1" placeholder="Add a message..." id="msg-input-${t.id}" onkeydown="if(event.key==='Enter')sendMsg(${t.id})">
+      <button class="btn btn-primary btn-sm" onclick="sendMsg(${t.id})">${svg(I.send,12)}</button>
+    </div>`;
+}
+
+async function sendMsg(id) {
+  const inp = document.getElementById('msg-input-' + id);
+  if (!inp || !inp.value.trim()) return;
+  try {
+    await POST(`/tickets/${id}/message`, { sender_type: 'pm', sender_name: 'Patricia Davis', body: inp.value.trim() });
+    inp.value = '';
+    const t = await GET('/tickets/' + id);
+    renderTicketDetail(t);
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function updateTicket(id, status, extra = {}) {
+  try {
+    await PUT('/tickets/' + id, { status, ...extra });
+    toast('Status updated to ' + status.replace('_', ' '));
+    const t = await GET('/tickets/' + id);
+    renderTicketDetail(t);
+    const all = await GET('/tickets');
+    window._tickets = all;
+    $('ticket-list-inner').innerHTML = renderTicketList(
+      _ticketFilter === 'all' ? all : all.filter(t => t.urgency === _ticketFilter || t.status === _ticketFilter)
+    );
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function deleteTicket(id) {
+  if (!confirm('Delete this ticket and all its messages?')) return;
+  try {
+    await DEL('/tickets/' + id);
+    toast('Ticket deleted');
+    state.selTicket = null;
+    viewMaintenance();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ── VENDORS ───────────────────────────────────────────────────────────────────
+async function viewVendors() {
+  try {
+    const vendors = await GET('/vendors');
+    window._vendors = vendors;
+    const active = vendors.filter(v => v.status === 'active');
+    const pending = vendors.filter(v => v.status === 'pending');
+
+    $('content').innerHTML = `
+      <div class="g4 section-gap">
+        ${[
+          { l: 'Active Vendors', v: active.length, s: 'Available for dispatch', c: 'c-gr' },
+          { l: 'Pending Applications', v: pending.length, s: 'Awaiting review', c: pending.length > 0 ? 'c-am' : '' },
+          { l: 'Avg Rating', v: active.length ? (active.reduce((a,v) => a + parseFloat(v.rating), 0) / active.length).toFixed(1) + '★' : '—', s: 'Active vendors' },
+          { l: 'Jobs Completed', v: vendors.reduce((a, v) => a + parseInt(v.jobs_completed), 0), s: 'All time on platform' },
+        ].map(s => `<div class="sc"><div class="sl">${s.l}</div><div class="sv ${s.c || ''}">${s.v}</div><div class="ss">${s.s}</div></div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="ch">
+          <div class="flex gap2">
+            ${['active','pending','suspended'].map(t => `<button class="btn btn-ghost btn-xs" onclick="filterVendors('${t}')" id="vf-${t}">${t.charAt(0).toUpperCase() + t.slice(1)}${t==='pending'&&pending.length?` <span class="nbadge nb-a">${pending.length}</span>`:''}</button>`).join('')}
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="modalAddVendor()">${svg(I.plus,12)} Add Vendor</button>
+        </div>
+        <div class="tw" id="vendor-table">${renderVendorTable(vendors)}</div>
+      </div>`;
+    filterVendors('active');
+  } catch(e) { $('content').innerHTML = `<div class="empty" style="color:var(--re)">Error: ${e.message}</div>`; }
+}
+
+let _vendorFilter = 'active';
+function filterVendors(f) {
+  _vendorFilter = f;
+  document.querySelectorAll('[id^="vf-"]').forEach(b => b.classList.remove('btn-primary'));
+  document.getElementById('vf-' + f)?.classList.add('btn-primary');
+  const filtered = (window._vendors || []).filter(v => v.status === f);
+  $('vendor-table').innerHTML = renderVendorTable(filtered);
+}
+
+function renderVendorTable(vendors) {
+  return `<table>
+    <thead><tr><th>Vendor</th><th>Trade</th><th>Contact</th><th>License</th><th>Insurance</th><th>BG</th><th>Jobs</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+      ${vendors.map(v => `<tr>
+        <td><div class="flex ai gap2">${av(v.name, 26)}<span class="fw5">${v.name}</span></div></td>
+        <td style="font-size:11px">${v.trade}</td>
+        <td style="font-size:11px;color:var(--mu)">${v.email || '—'}</td>
+        <td><span class="mono" style="font-size:10px">${v.license_number || '—'}</span></td>
+        <td style="font-size:10px;color:${v.insurance_expiry && new Date(v.insurance_expiry) < new Date(Date.now() + 30*86400000) ? 'var(--am)' : 'var(--mu)'}">${v.insurance_expiry ? fmtDate(v.insurance_expiry) : '—'}</td>
+        <td>${badge(v.bg_check)}</td>
+        <td><span class="mono">${v.jobs_completed}</span></td>
+        <td style="color:var(--am)">★ ${parseFloat(v.rating).toFixed(1)}</td>
+        <td>${badge(v.status)}</td>
+        <td><div class="flex gap1">
+          ${v.status === 'pending' ? `<button class="btn btn-success btn-xs" onclick="approveVendor(${v.id})">Approve</button>` : ''}
+          ${v.status === 'active' ? `<button class="btn btn-ghost btn-xs" onclick="modalEditVendor(${v.id})">${svg(I.edit,11)}</button>` : ''}
+          ${v.status === 'active' ? `<button class="btn btn-warning btn-xs" onclick="suspendVendor(${v.id})">Suspend</button>` : ''}
+          ${v.status === 'suspended' ? `<button class="btn btn-success btn-xs" onclick="approveVendor(${v.id})">Reinstate</button>` : ''}
+          <button class="btn btn-danger btn-xs" onclick="deleteVendor(${v.id})">${svg(I.trash,11)}</button>
+        </div></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+// ── OTHER PORTALS ─────────────────────────────────────────────────────────────
+async function renderOtherPortal() {
+  const p = state.portal;
+  if (p === 'tenant') await viewTenantPortal();
+  else if (p === 'vendor') await viewVendorPortal();
+  else if (p === 'admin') await viewAdminPortal();
+}
+
+async function viewTenantPortal() {
+  const [units, payments, tickets] = await Promise.all([GET('/units'), GET('/payments'), GET('/tickets')]).catch(() => [[], [], []]);
+  const myUnit = units.find(u => u.unit_number === '103') || {};
+  const myPayment = payments.find(p => p.unit_number === '103' && p.status !== 'paid');
+  const myTickets = tickets.filter(t => t.unit_number === '103').slice(0, 3);
+
+  $('content').innerHTML = `
+    <div style="max-width:580px;margin:0 auto">
+      <div style="background:linear-gradient(135deg,var(--te-d),var(--bl-d));border-radius:10px;padding:16px 20px;margin-bottom:14px;border:1px solid var(--te-d)">
+        <div class="flex ai gap3 mb3">${av('Tyler Ramos', 38)}
+          <div><div style="font-size:14px;font-weight:700">Tyler Ramos</div>
+          <div style="font-size:11px;color:var(--mu)">Unit 103 · 2640 Oak Ave · Lease ends Jun 30, 2026</div></div>
+        </div>
+        <div class="g3">
+          <div style="background:rgba(0,0,0,0.3);border-radius:6px;padding:10px;text-align:center">
+            <div class="sv c-re" style="font-size:18px">${money(myPayment?.amount || 2200)}</div>
+            <div style="font-size:10px;color:var(--mu)">⚠ Due March 1</div>
+          </div>
+          <div style="background:rgba(0,0,0,0.3);border-radius:6px;padding:10px;text-align:center">
+            <div class="sv" style="font-size:18px">107</div>
+            <div style="font-size:10px;color:var(--mu)">days left on lease</div>
+          </div>
+          <div style="background:rgba(0,0,0,0.3);border-radius:6px;padding:10px;text-align:center">
+            <div class="sv c-te" style="font-size:18px">+12</div>
+            <div style="font-size:10px;color:var(--mu)">credit score pts</div>
+          </div>
+        </div>
+      </div>
+      <div class="g2 mb3">
+        <button class="btn btn-primary" style="padding:14px;border-radius:8px;font-size:13px;justify-content:center" onclick="tenantPay(${myPayment?.id || 3})">${svg(I.dollar,14)} Pay ${money(myPayment?.amount || 2200)} Rent</button>
+        <button class="btn btn-ghost" style="padding:14px;border-radius:8px;font-size:13px;justify-content:center" onclick="tenantNewTicket()">${svg(I.wrench,14)} Report an Issue</button>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ct">My Maintenance Requests</span></div>
+        ${myTickets.length ? myTickets.map(t => `
+          <div class="ti-row ${t.urgency}">
+            <div class="urg-dot u${t.urgency[0]}"></div>
+            <div style="flex:1"><div class="fw5">${t.title}</div>
+            <div style="font-size:10px;color:var(--mu);margin-top:2px">${t.scheduled_window ? 'Scheduled: ' + t.scheduled_window : 'Awaiting assignment'}</div></div>
+            ${badge(t.status)}
+          </div>`).join('') : '<div class="empty">No open requests</div>'}
+      </div>
+    </div>`;
+}
+
+async function viewVendorPortal() {
+  const tickets = await GET('/tickets').catch(() => []);
+  const available = tickets.filter(t => t.status === 'open' && !t.vendor_id).slice(0, 5);
+
+  $('content').innerHTML = `
+    <div class="g4 section-gap">
+      ${[
+        { l: 'This Month Earnings', v: '$2,840', s: '+$480 pending', c: 'c-te' },
+        { l: 'Jobs Completed', v: '23', s: 'March 2026' },
+        { l: 'Avg Rating', v: '4.9★', s: '23 reviews' },
+        { l: 'Response Rate', v: '96%', s: 'Within 30-min window' },
+      ].map(s => `<div class="sc"><div class="sl">${s.l}</div><div class="sv ${s.c||''}">${s.v}</div><div class="ss">${s.s}</div></div>`).join('')}
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="ch"><span class="ct">Available Jobs Near You</span><span style="font-size:10px;color:var(--te)">${available.length} available</span></div>
+        ${available.length ? available.map(t => `
+          <div style="background:var(--surf);border:1px solid var(--b1);border-radius:8px;padding:12px;margin-bottom:8px;border-left:3px solid ${t.urgency==='emergency'?'var(--re)':t.urgency==='urgent'?'var(--am)':'var(--dim)'}">
+            <div class="flex jb ai mb2"><div class="fw6">${t.title}</div><span class="mono fw7 c-te">$${Math.floor(150 + Math.random()*200)}</span></div>
+            <div style="font-size:10px;color:var(--mu);margin-bottom:8px">${t.category} · Unit ${t.unit_number}</div>
+            <div class="flex gap2"><button class="btn btn-primary" style="flex:1" onclick="vendorAccept(${t.id})">Accept Job</button><button class="btn btn-ghost btn-sm">Decline</button></div>
+          </div>`).join('') : '<div class="empty">No jobs available right now</div>'}
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ct">Active Jobs</span></div>
+        <div style="background:var(--surf);border:1px solid var(--b1);border-radius:8px;padding:12px;margin-bottom:8px">
+          <div class="flex jb ai mb2"><div class="fw5">Water heater replacement</div>${badge('in_progress')}</div>
+          <div style="font-size:10px;color:var(--mu);margin-bottom:8px">3310 Birch Ln, Unit 101</div>
+          <div class="flex jb ai"><span class="mono fw6 c-te">$480.00</span><button class="btn btn-success btn-sm" onclick="toast('Job marked complete! Payout initiated.','success')">${svg(I.check,11)} Mark Complete</button></div>
+        </div>
+        <div style="border-top:1px solid var(--b1);padding-top:12px;margin-top:4px">
+          <div style="font-size:10px;color:var(--mu);margin-bottom:8px">PENDING PAYOUT</div>
+          <div class="flex jb ai"><div><div class="mono fw7 c-te">$480.00</div><div style="font-size:10px;color:var(--mu)">JOB-045 · Est. 2 business days</div></div><span class="badge b-am">Awaiting PM approval</span></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function viewAdminPortal() {
+  const [units, tickets, vendors, payments] = await Promise.all([
+    GET('/units'), GET('/tickets'), GET('/vendors'), GET('/payments')
+  ]).catch(() => [[], [], [], []]);
+
+  const pending = vendors.filter(v => v.status === 'pending');
+  const gmv = payments.filter(p => p.status === 'paid').reduce((a, p) => a + parseFloat(p.amount), 0);
+
+  $('content').innerHTML = `
+    <div class="g4 section-gap">
+      ${[
+        { l: 'Platform GMV', v: money(gmv), s: payments.filter(p => p.status === 'paid').length + ' payments', c: 'c-te' },
+        { l: 'Open Tickets', v: tickets.filter(t => t.status !== 'completed').length, s: tickets.filter(t => t.urgency === 'emergency').length + ' emergency', c: 'c-am' },
+        { l: 'Active Vendors', v: vendors.filter(v => v.status === 'active').length, s: pending.length + ' pending review', c: 'c-gr' },
+        { l: 'Units Occupied', v: units.filter(u => u.status === 'occupied').length + '/' + units.length, s: 'Occupancy rate' },
+      ].map(s => `<div class="sc"><div class="sl">${s.l}</div><div class="sv ${s.c||''}">${s.v}</div><div class="ss">${s.s}</div></div>`).join('')}
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="ch"><span class="ct">Vendor Applications</span>${pending.length ? `<span class="badge b-am">${pending.length} pending</span>` : ''}</div>
+        ${pending.length ? pending.map(v => `
+          <div style="background:var(--surf);border:1px solid var(--b1);border-radius:8px;padding:12px;margin-bottom:8px">
+            <div class="flex jb ai mb2"><div class="flex ai gap2">${av(v.name, 30)}<div><div class="fw6">${v.name}</div><div style="font-size:10px;color:var(--mu)">${v.trade}</div></div></div>${badge(v.bg_check)}</div>
+            <div style="font-size:10px;color:var(--mu);margin-bottom:8px">${svg(I.key,11)} ${v.license_number || 'No license'}</div>
+            <div class="flex gap2">
+              <button class="btn btn-success btn-sm" style="flex:1" onclick="adminApprove(${v.id})">${svg(I.check,11)} Approve</button>
+              <button class="btn btn-danger btn-sm" onclick="adminReject(${v.id})">${svg(I.x,11)} Reject</button>
+            </div>
+          </div>`).join('') : '<div class="empty">No pending applications</div>'}
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ct">Platform Alerts</span></div>
+        ${[
+          { c: 'var(--re)', txt: tickets.filter(t => t.urgency === 'emergency' && t.status === 'open').length + ' emergency ticket(s) unassigned' },
+          { c: 'var(--am)', txt: pending.length + ' vendor application(s) pending review' },
+          { c: 'var(--am)', txt: units.filter(u => u.status === 'expiring').length + ' lease(s) expiring soon' },
+          { c: 'var(--gr)', txt: 'Pen test scheduled for Apr 1, 2026' },
+          { c: 'var(--bl)', txt: 'Platform insurance renewal due Jun 2026' },
+        ].map(a => `<div class="flex ai gap2" style="padding:7px 0;border-bottom:1px solid var(--b1)">
+          <div style="width:6px;height:6px;border-radius:3px;background:${a.c};flex-shrink:0"></div>
+          <div style="font-size:11px;color:var(--mu)">${a.txt}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ── VENDOR ACTIONS ────────────────────────────────────────────────────────────
+async function vendorAccept(id) {
+  try {
+    await PUT('/tickets/' + id, { status: 'assigned', scheduled_window: 'Today 2–5pm' });
+    await POST('/tickets/' + id + '/message', { sender_type: 'vendor', sender_name: 'Victor Chen', body: 'Job accepted. I will be there this afternoon between 2–5pm.' });
+    toast('Job accepted! PM and tenant notified.', 'success');
+    viewVendorPortal();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function adminApprove(id) {
+  try {
+    await PUT('/vendors/' + id, { status: 'active' });
+    toast('Vendor approved! They can now receive jobs.', 'success');
+    viewAdminPortal();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function adminReject(id) {
+  try {
+    await PUT('/vendors/' + id, { status: 'suspended' });
+    toast('Application rejected.', 'info');
+    viewAdminPortal();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function tenantPay(id) {
+  showModal(`
+    <div class="mh"><div class="mt">${svg(I.dollar,15)} Pay Rent — March 2026</div><button class="btn btn-ghost btn-xs" onclick="closeModal()">${svg(I.x,13)}</button></div>
+    <div class="mb">
+      <div style="background:var(--surf);border-radius:8px;padding:14px;margin-bottom:14px">
+        <div style="font-size:28px;font-weight:700;font-family:var(--mono);color:var(--te);text-align:center;margin-bottom:4px">$2,200</div>
+        <div style="font-size:11px;color:var(--mu);text-align:center">Unit 103 · Tyler Ramos · March 2026</div>
+      </div>
+      <div class="fg"><label class="fl">Payment Method</label>
+        <select class="fi" id="tenant-pay-method">
+          <option value="ACH">ACH Bank Transfer (Free)</option>
+          <option value="Card">Debit / Credit Card (+2.9%)</option>
+          <option value="Autopay">Enroll in Autopay (ACH)</option>
+        </select>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitTenantPayment(${id})">Pay $2,200 Now</button>
+    </div>`);
+}
+
+async function submitTenantPayment(id) {
+  const method = document.getElementById('tenant-pay-method')?.value || 'ACH';
+  try {
+    await PUT('/payments/' + id, { status: 'paid', method });
+    closeModal();
+    toast('Payment confirmed! Receipt sent to tyler.ramos@email.com', 'success');
+    setTimeout(viewTenantPortal, 500);
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function tenantNewTicket() {
+  const units = await GET('/units').catch(() => []);
+  const myUnit = units.find(u => u.unit_number === '103') || units[2] || {};
+  showModal(`
+    <div class="mh"><div class="mt">Report a Maintenance Issue</div><button class="btn btn-ghost btn-xs" onclick="closeModal()">${svg(I.x,13)}</button></div>
+    <div class="mb">
+      <div class="fg"><label class="fl">Category</label>
+        <select class="fi" id="t-cat"><option>Plumbing</option><option>Electrical</option><option>HVAC</option><option>Appliance</option><option>General</option></select></div>
+      <div class="fg"><label class="fl">Urgency</label>
+        <select class="fi" id="t-urg"><option value="routine">Routine — can wait 3-5 days</option><option value="urgent">Urgent — within 48 hours</option><option value="emergency">Emergency — safety risk</option></select></div>
+      <div class="fg"><label class="fl">Description</label><textarea class="fi" id="t-desc" placeholder="Describe the issue in detail..."></textarea></div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitTenantTicket(${myUnit.id})">Submit Request</button>
+    </div>`);
+}
+
+async function submitTenantTicket(unitId) {
+  const cat = document.getElementById('t-cat').value;
+  const urg = document.getElementById('t-urg').value;
+  const desc = document.getElementById('t-desc').value;
+  try {
+    await POST('/tickets', { unit_id: unitId, category: cat, urgency: urg, title: cat + ' issue in Unit 103', description: desc || 'No description provided.' });
+    closeModal();
+    toast('Request submitted! You will receive SMS updates at each stage.', 'success');
+    setTimeout(viewTenantPortal, 400);
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ── CRUD MODALS ───────────────────────────────────────────────────────────────
+async function modalAddUnit() {
+  const props = await GET('/properties').catch(() => []);
+  showModal(`
+    <div class="mh"><div class="mt">Add New Unit</div><button class="btn btn-ghost btn-xs" onclick="closeModal()">${svg(I.x,13)}</button></div>
+    <div class="mb">
+      <div class="fg"><label class="fl">Property</label>
+        <select class="fi" id="u-prop">${props.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
+      <div class="fr2">
+        <div class="fg"><label class="fl">Unit Number *</label><input class="fi" id="u-num" placeholder="e.g. 101, 2B"></div>
+        <div class="fg"><label class="fl">Monthly Rent</label><input class="fi" id="u-rent" type="number" placeholder="2400"></div>
+      </div>
+      <div class="fr3">
+        <div class="fg"><label class="fl">Bedrooms</label>
+          <select class="fi" id="u-beds">${[1,2,3,4].map(n=>`<option value="${n}">${n} BR</option>`).join('')}</select></div>
+        <div class="fg"><label class="fl">Bathrooms</label>
+          <select class="fi" id="u-baths">${[1,1.5,2,2.5,3].map(n=>`<option value="${n}">${n} BA</option>`).join('')}</select></div>
+        <div class="fg"><label class="fl">Sq Ft</label><input class="fi" id="u-sqft" type="number" placeholder="850"></div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitAddUnit()">Create Unit</button>
+    </div>`);
+}
+
+async function submitAddUnit() {
+  const body = { property_id: $('u-prop').value, unit_number: $('u-num').value, bedrooms: parseInt($('u-beds').value), bathrooms: parseFloat($('u-baths').value), sqft: parseInt($('u-sqft').value)||null, monthly_rent: parseFloat($('u-rent').value)||0 };
+  if (!body.unit_number) { toast('Unit number required', 'error'); return; }
+  try { await POST('/units', body); toast('Unit created'); closeModal(); viewUnits(); }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+async function modalEditUnit(id) {
+  const u = await GET('/units/' + id);
+  showModal(`
+    <div class="mh"><div class="mt">Edit Unit ${u.unit_number}</div><button class="btn btn-ghost btn-xs" onclick="closeModal()">${svg(I.x,13)}</button></div>
+    <div class="mb">
+      <div class="fr2">
+        <div class="fg"><label class="fl">Unit Number</label><input class="fi" id="eu-num" value="${u.unit_number}"></div>
+        <div class="fg"><label class="fl">Monthly Rent</label><input class="fi" id="eu-rent" type="number" value="${u.monthly_rent}"></div>
+      </div>
+      <div class="fr3">
+        <div class="fg"><label class="fl">Bedrooms</label>
+          <select class="fi" id="eu-beds">${[1,2,3,4].map(n=>`<option value="${n}" ${u.bedrooms==n?'selected':''}>${n} BR</option>`).join('')}</select></div>
+        <div class="fg"><label class="fl">Bathrooms</label>
+          <select class="fi" id="eu-baths">${[1,1.5,2,2.5,3].map(n=>`<option value="${n}" ${u.bathrooms==n?'selected':''}>${n} BA</option>`).join('')}</select></div>
+        <div class="fg"><label class="fl">Sq Ft</label><input class="fi" id="eu-sqft" type="number" value="${u.sqft||''}"></div>
+      </div>
+      <div class="fg"><label class="fl">Status</label>
+        <select class="fi" id="eu-status">
+          ${['vacant','occupied','expiring','maintenance'].map(s=>`<option value="${s}" ${u.status===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitEditUnit(${id})">Save Changes</button>
+    </div>`);
+}
+
+async function submitEditUnit(id) {
+  const body = { unit_number: $('eu-num').value, bedrooms: parseInt($('eu-beds').value), bathrooms: parseFloat($('eu-baths').value), sqft: parseInt($('eu-sqft').value)||null, monthly_rent: parseFloat($('eu-rent').value)||0, status: $('eu-status').value };
+  try { await PUT('/units/' + id, body); toast('Unit updated'); closeModal(); viewUnits(); }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+async function deleteUnit(id) {
+  if (!confirm('Delete this unit? This cannot be undone.')) return;
+  try { await DEL('/units/' + id); toast('Unit deleted'); viewUnits(); }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+async function modalNewLease() {
+  const [units, tenants] = await Promise.all([GET('/units'), GET('/tenants')]);
+  const vacant = units.filter(u => u.status === 'vacant');
+  showModal(`
+    <div class="mh"><div class="mt">Create New Lease</div><button class="btn btn-ghost btn-xs" onclick="closeModal()">${svg(I.x,13)}</button></div>
+    <div class="mb">
+      <div class="fr2">
+        <div class="fg"><label class="fl">Vacant Unit *</label>
+          <select class="fi" id="l-unit">${vacant.length ? vacant.map(u=>`<option value="${u.id}">Unit ${u.unit_number} · ${money(u.monthly_rent)}/mo</option>`).join('') : '<option disabled>No vacant units</option>'}</select></div>
+        <div class="fg"><label class="fl">Tenant *</label>
+          <select class="fi" id="l-tenant"><option value="">Select tenant...</option>${tenants.map(t=>`<option value="${t.id}">${t.first_name} ${t.last_name}</option>`).join('')}</select></div>
+      </div>
+      <div class="fr2">
+        <div class="fg"><label class="fl">Start Date *</label><input class="fi" id="l-start" type="date" value="${new Date().toISOString().split('T')[0]}"></div>
+        <div class="fg"><label class="fl">End Date *</label><input class="fi" id="l-end" type="date"></div>
+      </div>
+      <div class="fr2">
+        <div class="fg"><label class="fl">Monthly Rent *</label><input class="fi" id="l-rent" type="number" placeholder="2400"></div>
+        <div class="fg"><label class="fl">Security Deposit</label><input class="fi" id="l-dep" type="number" placeholder="2400"></div>
+      </div>
+      <div style="font-size:11px;color:var(--mu);background:var(--surf);padding:8px 12px;border-radius:6px">ℹ First payment record will be auto-generated for the start date.</div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitNewLease()">Create Lease</button>
+    </div>`);
+}
+
+async function modalAddLease(unitId) { await modalNewLease(); }
+
+async function submitNewLease() {
+  const body = { unit_id: $('l-unit').value, tenant_id: $('l-tenant').value, start_date: $('l-start').value, end_date: $('l-end').value, monthly_rent: parseFloat($('l-rent').value), security_deposit: parseFloat($('l-dep').value)||0 };
+  if (!body.unit_id || !body.tenant_id || !body.start_date || !body.end_date || !body.monthly_rent) { toast('All required fields must be filled', 'error'); return; }
+  try { await POST('/leases', body); toast('Lease created! First payment record generated.'); closeModal(); viewLeases(); }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+async function terminateLease(id) {
+  if (!confirm('Terminate this lease? The unit will be marked vacant.')) return;
+  try { await PUT('/leases/' + id, { status: 'terminated', end_date: new Date().toISOString().split('T')[0] }); toast('Lease terminated'); viewLeases(); }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+function modalAddTenant() {
+  showModal(`
+    <div class="mh"><div class="mt">Add Tenant</div><button class="btn btn-ghost btn-xs" onclick="closeModal()">${svg(I.x,13)}</button></div>
+    <div class="mb">
+      <div class="fr2">
+        <div class="fg"><label class="fl">First Name *</label><input class="fi" id="tn-fn" placeholder="Sarah"></div>
+        <div class="fg"><label class="fl">Last Name *</label><input class="fi" id="tn-ln" placeholder="Chen"></div>
+      </div>
+      <div class="fg"><label class="fl">Email *</label><input class="fi" id="tn-em" type="email" placeholder="sarah@email.com"></div>
+      <div class="fg"><label class="fl">Phone</label><input class="fi" id="tn-ph" placeholder="(512) 555-0100"></div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitAddTenant()">Add Tenant</button>
+    </div>`);
+}
+
+async function submitAddTenant() {
+  const body = { first_name: $('tn-fn').value, last_name: $('tn-ln').value, email: $('tn-em').value, phone: $('tn-ph').value };
+  if (!body.first_name || !body.last_name || !body.email) { toast('First name, last name and email required', 'error'); return; }
+  try { await POST('/tenants', body); toast('Tenant added'); closeModal(); viewTenants(); }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+async function modalEditTenant(id) {
+  const t = await GET('/tenants/' + id);
+  showModal(`
+    <div class="mh"><div class="mt">Edit Tenant</div><button class="btn btn-ghost btn-xs" onclick="closeModal()">${svg(I.x,13)}</button></div>
+    <div class="mb">
+      <div class="fr2">
+        <div class="fg"><label class="fl">First Name</label><input class="fi" id="et-fn" value="${t.first_name}"></div>
+        <div class="fg"><label class="fl">Last Name</label><input class="fi" id="et-ln" value="${t.last_name}"></div>
+      </div>
+      <div class="fg"><label class="fl">Email</label><input class="fi" id="et-em" type="email" value="${t.email}"></div>
+      <div class="fg"><label class="fl">Phone</label><input class="fi" id="et-ph" value="${t.phone || ''}"></div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitEditTenant(${id})">Save</button>
+    </div>`);
+}
+
+async function submitEditTenant(id) {
+  const body = { first_name: $('et-fn').value, last_name: $('et-ln').value, email: $('et-em').value, phone: $('et-ph').value };
+  try { await PUT('/tenants/' + id, body); toast('Tenant updated'); closeModal(); viewTenants(); }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+async function deleteTenant(id) {
+  if (!confirm('Remove this tenant record?')) return;
+  try { await DEL('/tenants/' + id); toast('Tenant removed'); viewTenants(); }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+function modalAddPayment() {
+  GET('/leases').then(leases => {
+    const active = leases.filter(l => l.status === 'active');
+    showModal(`
+      <div class="mh"><div class="mt">Add Payment Record</div><button class="btn btn-ghost btn-xs" onclick="closeModal()">${svg(I.x,13)}</button></div>
+      <div class="mb">
+        <div class="fg"><label class="fl">Lease *</label>
+          <select class="fi" id="np-lease"><option value="">Select lease...</option>${active.map(l=>`<option value="${l.id}">${l.tenant_name} — Unit ${l.unit_number}</option>`).join('')}</select></div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">Amount *</label><input class="fi" id="np-amt" type="number" placeholder="2400"></div>
+          <div class="fg"><label class="fl">Due Date *</label><input class="fi" id="np-due" type="date" value="${new Date().toISOString().split('T')[0]}"></div>
+        </div>
+      </div>
+      <div class="mf">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitAddPayment()">Create Record</button>
+      </div>`);
+  });
+}
+
+async function submitAddPayment() {
+  const body = { lease_id: $('np-lease').value, amount: parseFloat($('np-amt').value), due_date: $('np-due').value };
+  if (!body.lease_id || !body.amount || !body.due_date) { toast('All fields required', 'error'); return; }
+  try { await POST('/payments', body); toast('Payment record created'); closeModal(); viewPayments(); }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+async function modalNewTicket() {
+  const units = await GET('/units').catch(() => []);
+  const occupied = units.filter(u => u.status !== 'vacant');
+  showModal(`
+    <div class="mh"><div class="mt">New Maintenance Ticket</div><button class="btn btn-ghost btn-xs" onclick="closeModal()">${svg(I.x,13)}</button></div>
+    <div class="mb">
+      <div class="fg"><label class="fl">Unit *</label>
+        <select class="fi" id="tk-unit"><option value="">Select unit...</option>${occupied.map(u=>`<option value="${u.id}">Unit ${u.unit_number}${u.tenant_name?' — '+u.tenant_name:''}</option>`).join('')}</select></div>
+      <div class="fr2">
+        <div class="fg"><label class="fl">Category</label>
+          <select class="fi" id="tk-cat"><option>Plumbing</option><option>Electrical</option><option>HVAC</option><option>Appliance</option><option>General</option><option>Pest Control</option><option>Structural</option></select></div>
+        <div class="fg"><label class="fl">Urgency</label>
+          <select class="fi" id="tk-urg"><option value="routine">Routine</option><option value="urgent">Urgent</option><option value="emergency">Emergency</option></select></div>
+      </div>
+      <div class="fg"><label class="fl">Title *</label><input class="fi" id="tk-title" placeholder="Brief description of the issue"></div>
+      <div class="fg"><label class="fl">Description</label><textarea class="fi" id="tk-desc" placeholder="More details..."></textarea></div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitNewTicket()">Create Ticket</button>
+    </div>`);
+}
+
+async function submitNewTicket() {
+  const unitId = $('tk-unit').value;
+  const units = window._tickets ? [] : await GET('/units').catch(() => []);
+  const unit = (units || []).find(u => String(u.id) === String(unitId));
+  const body = { unit_id: unitId, tenant_id: unit?.tenant_id || null, category: $('tk-cat').value, urgency: $('tk-urg').value, title: $('tk-title').value, description: $('tk-desc').value };
+  if (!body.unit_id || !body.title) { toast('Unit and title required', 'error'); return; }
+  try { await POST('/tickets', body); toast('Ticket created. Tenant notified via SMS.'); closeModal(); viewMaintenance(); }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+async function modalDispatch(ticketId) {
+  const vendors = await GET('/vendors').catch(() => []);
+  const active = vendors.filter(v => v.status === 'active');
+  showModal(`
+    <div class="mh"><div class="mt">${svg(I.zap,15)} Dispatch Vendor</div><button class="btn btn-ghost btn-xs" onclick="closeModal()">${svg(I.x,13)}</button></div>
+    <div class="mb">
+      <div style="font-size:11px;color:var(--mu);margin-bottom:12px">Select a vetted vendor. They will be notified immediately via SMS.</div>
+      ${active.length ? active.map(v => `
+        <div style="background:var(--surf);border:1px solid var(--b1);border-radius:8px;padding:12px;margin-bottom:8px;cursor:pointer;transition:all 0.12s" onclick="dispatchToVendor(${ticketId},${v.id})">
+          <div class="flex jb ai">
+            <div class="flex ai gap2">${av(v.name, 32)}<div><div class="fw5">${v.name}</div><div style="font-size:10px;color:var(--mu)">${v.trade} · ${v.jobs_completed} jobs</div></div></div>
+            <div style="text-align:right"><div style="color:var(--am)">★ ${parseFloat(v.rating).toFixed(1)}</div>${badge('available')}</div>
+          </div>
+        </div>`).join('') : '<div class="empty">No active vendors</div>'}
+    </div>
+    <div class="mf"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`);
+}
+
+async function dispatchToVendor(ticketId, vendorId) {
+  try {
+    await PUT('/tickets/' + ticketId, { vendor_id: vendorId, status: 'assigned', scheduled_window: 'Next available window' });
+    toast('Vendor dispatched! Tenant notified of assignment.', 'success');
+    closeModal();
+    const t = await GET('/tickets/' + ticketId);
+    renderTicketDetail(t);
+    const all = await GET('/tickets');
+    window._tickets = all;
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function modalAddVendor() {
+  showModal(`
+    <div class="mh"><div class="mt">Add Vendor</div><button class="btn btn-ghost btn-xs" onclick="closeModal()">${svg(I.x,13)}</button></div>
+    <div class="mb">
+      <div class="fr2">
+        <div class="fg"><label class="fl">Business Name *</label><input class="fi" id="v-name" placeholder="Acme Plumbing LLC"></div>
+        <div class="fg"><label class="fl">Trade *</label>
+          <select class="fi" id="v-trade"><option>Plumbing</option><option>Electrical</option><option>HVAC</option><option>General</option><option>Appliance</option><option>Pest Control</option><option>Painting</option><option>Roofing</option></select></div>
+      </div>
+      <div class="fr2">
+        <div class="fg"><label class="fl">Email</label><input class="fi" id="v-email" type="email" placeholder="vendor@company.com"></div>
+        <div class="fg"><label class="fl">Phone</label><input class="fi" id="v-phone" placeholder="(512) 555-0200"></div>
+      </div>
+      <div class="fr2">
+        <div class="fg"><label class="fl">License Number</label><input class="fi" id="v-lic" placeholder="TX-PLB-0000"></div>
+        <div class="fg"><label class="fl">Insurance Expiry</label><input class="fi" id="v-ins" type="date"></div>
+      </div>
+      <div class="fg"><label class="fl">Background Check</label>
+        <select class="fi" id="v-bg"><option value="Pending">Pending</option><option value="Pass">Pass</option><option value="Review">Under Review</option><option value="Fail">Fail</option></select></div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitAddVendor()">Add Vendor</button>
+    </div>`);
+}
+
+async function submitAddVendor() {
+  const body = { name: $('v-name').value, trade: $('v-trade').value, email: $('v-email').value, phone: $('v-phone').value, license_number: $('v-lic').value, insurance_expiry: $('v-ins').value || null, bg_check: $('v-bg').value };
+  if (!body.name || !body.trade) { toast('Name and trade required', 'error'); return; }
+  try { await POST('/vendors', body); toast('Vendor added. Pending approval.'); closeModal(); viewVendors(); }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+async function modalEditVendor(id) {
+  const v = (window._vendors || []).find(v => v.id === id) || await GET('/vendors').then(vs => vs.find(v => v.id === id));
+  if (!v) return;
+  showModal(`
+    <div class="mh"><div class="mt">Edit Vendor</div><button class="btn btn-ghost btn-xs" onclick="closeModal()">${svg(I.x,13)}</button></div>
+    <div class="mb">
+      <div class="fr2">
+        <div class="fg"><label class="fl">Name</label><input class="fi" id="ev-name" value="${v.name}"></div>
+        <div class="fg"><label class="fl">Trade</label>
+          <select class="fi" id="ev-trade">${['Plumbing','Electrical','HVAC','General','Appliance'].map(t=>`<option ${v.trade===t?'selected':''}>${t}</option>`).join('')}</select></div>
+      </div>
+      <div class="fr2">
+        <div class="fg"><label class="fl">Email</label><input class="fi" id="ev-email" type="email" value="${v.email||''}"></div>
+        <div class="fg"><label class="fl">Phone</label><input class="fi" id="ev-phone" value="${v.phone||''}"></div>
+      </div>
+      <div class="fr2">
+        <div class="fg"><label class="fl">License</label><input class="fi" id="ev-lic" value="${v.license_number||''}"></div>
+        <div class="fg"><label class="fl">Insurance Expiry</label><input class="fi" id="ev-ins" type="date" value="${v.insurance_expiry?v.insurance_expiry.split('T')[0]:''}"></div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitEditVendor(${id})">Save</button>
+    </div>`);
+}
+
+async function submitEditVendor(id) {
+  const body = { name: $('ev-name').value, trade: $('ev-trade').value, email: $('ev-email').value, phone: $('ev-phone').value, license_number: $('ev-lic').value, insurance_expiry: $('ev-ins').value || null };
+  try { await PUT('/vendors/' + id, body); toast('Vendor updated'); closeModal(); viewVendors(); }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+async function approveVendor(id) {
+  try { await PUT('/vendors/' + id, { status: 'active' }); toast('Vendor approved!', 'success'); viewVendors(); }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+async function suspendVendor(id) {
+  if (!confirm('Suspend this vendor?')) return;
+  try { await PUT('/vendors/' + id, { status: 'suspended' }); toast('Vendor suspended', 'info'); viewVendors(); }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+async function deleteVendor(id) {
+  if (!confirm('Remove this vendor from the marketplace?')) return;
+  try { await DEL('/vendors/' + id); toast('Vendor removed'); viewVendors(); }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderAll();
+loadView('dashboard');
+</script>
+</body>
+</html>
