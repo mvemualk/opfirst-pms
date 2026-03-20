@@ -11,7 +11,6 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── DATABASE ─────────────────────────────────────────────────────────────────
-// const db = new PGlite('./data');
 const db = new PGlite();
 
 async function initDB() {
@@ -430,33 +429,42 @@ app.delete('/api/vendors/:id', wrap(async (req, res) => {
   res.json({ ok: true });
 }));
 
-// ─── ERROR HANDLER ─────────────────────────────────────────────────────────────
+// ─── ERROR HANDLER ────────────────────────────────────────────────────────────
 app.use((err, req, res, _next) => {
-  console.error(err.message);
+  console.error('API error:', err.message);
   res.status(500).json({ error: err.message });
 });
 
-// ─── START ─────────────────────────────────────────────────────────────────────
+// ─── START ────────────────────────────────────────────────────────────────────
+// Bind to 0.0.0.0 so Render's port scanner can detect the open port
+const HOST = '0.0.0.0';
 
-/*
-initDB()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server running on ${PORT}`);
-    });
-  })
-  .catch(err => {
-    console.error("Startup failed:", err);
+function startServer() {
+  const server = app.listen(PORT, HOST, () => {
+    console.log(`\n  OpFirst PMS running at http://${HOST}:${PORT}\n`);
+  });
+  server.on('error', (err) => {
+    console.error('Server error:', err.message);
     process.exit(1);
   });
+}
 
-*/
+initDB()
+  .then(() => {
+    startServer();
+  })
+  .catch((err) => {
+    console.error('Database init failed:', err.message);
+    console.error('Starting server without seed data...');
+    // Still start the server so Render sees an open port
+    startServer();
+  });
 
-app.listen(PORT, () => {
-  console.log(`Server running on ${PORT}`);
+// Catch any unhandled promise rejections so the process doesn't exit silently
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled rejection:', reason);
 });
-
-initDB().catch(err => {
-  console.error("DB init failed:", err);
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception:', err.message);
+  process.exit(1);
 });
-
