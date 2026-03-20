@@ -11,7 +11,8 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── DATABASE ─────────────────────────────────────────────────────────────────
-const db = new PGlite('./data');
+// const db = new PGlite('./data');
+const db = new PGlite();
 
 async function initDB() {
   await db.exec(`
@@ -437,6 +438,19 @@ app.use((err, req, res, _next) => {
 
 // ─── START ─────────────────────────────────────────────────────────────────────
 
+/*
+initDB()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running on ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error("Startup failed:", err);
+    process.exit(1);
+  });
+
+*/
 
 app.listen(PORT, () => {
   console.log(`Server running on ${PORT}`);
@@ -445,3 +459,4 @@ app.listen(PORT, () => {
 initDB().catch(err => {
   console.error("DB init failed:", err);
 });
+
