@@ -10,7 +10,9 @@
   "dependencies": {
     "@electric-sql/pglite": "^0.2.13",
     "cors": "^2.8.5",
-    "express": "^4.21.2"
+    "express": "^4.22.1"
   },
-  "engines": { "node": ">=18.0.0" }
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }
