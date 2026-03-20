@@ -8,9 +8,8 @@
     "dev": "node server.js"
   },
   "dependencies": {
-    "@electric-sql/pglite": "^0.2.13",
-    "cors": "^2.8.5",
-    "express": "^4.22.1"
+    "cors": "2.8.5",
+    "express": "4.21.2"
   },
   "engines": {
     "node": ">=18.0.0"
